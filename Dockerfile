@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     zlib1g-dev \
     ca-certificates \
+    python3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Use GCC 13 explicitly

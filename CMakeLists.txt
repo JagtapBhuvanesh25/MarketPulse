@@ -154,16 +154,8 @@ foreach(test_target
         test_signals)
     target_link_libraries(${test_target} PRIVATE marketpulse_lib Catch2::Catch2WithMain)
     target_compile_options(${test_target} PRIVATE ${MP_WARN_FLAGS})
-    # Run equivalence tests from project root so fixture paths resolve
-    set_tests_properties(${test_target} PROPERTIES
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    catch_discover_tests(${test_target} WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endforeach()
-
-# Auto-discover Catch2 test cases
-catch_discover_tests(test_spsc)
-catch_discover_tests(test_sequencer)
-catch_discover_tests(test_book_equivalence)
-catch_discover_tests(test_signals)
 
 # ============================================================
 # Benchmark performance gate
