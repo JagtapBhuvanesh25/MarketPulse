@@ -16,6 +16,7 @@
 #include "marketpulse/signals.hpp"
 #include "marketpulse/latency.hpp"
 #include "marketpulse/sim.hpp"
+#include "marketpulse/feed_binance.hpp"
 
 #include <simdjson.h>
 
@@ -141,7 +142,7 @@ int main(int argc, char* argv[]) {
 
         simdjson::ondemand::value msg_val;
         if (doc["msg"].get(msg_val)) continue;
-        const auto raw = simdjson::to_json_string(msg_val);
+        auto raw = simdjson::to_json_string(msg_val);
         if (raw.error()) continue;
 
         if (stream_sv.find("depth") != std::string_view::npos) {
@@ -165,7 +166,8 @@ int main(int argc, char* argv[]) {
                     if (pair.error()) continue;
                     auto it = pair.begin();
                     std::string_view pxsv, qtysv;
-                    if ((*it).get_string().get(pxsv))  continue; ++it;
+                    if ((*it).get_string().get(pxsv))  continue;
+                    ++it;
                     if ((*it).get_string().get(qtysv)) continue;
                     BookUpdate upd = proto;
                     upd.side = side;

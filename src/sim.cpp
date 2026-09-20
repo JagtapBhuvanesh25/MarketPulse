@@ -55,6 +55,8 @@ void SimEngine::on_trade(Side maker_side, Price price, Qty traded_qty,
     }
 }
 
+__extension__ typedef __int128 int128_t;
+
 void SimEngine::mark_to_market(double microprice_double) noexcept {
     // Convert microprice to fixed point for consistent arithmetic.
     const int64_t mp_e8 = static_cast<int64_t>(microprice_double * FIXED_SCALE);
@@ -66,10 +68,10 @@ void SimEngine::mark_to_market(double microprice_double) noexcept {
         // Both in fixed point (×1e16 before dividing by FIXED_SCALE once)
         if (o.side == Side::Bid) {
             o.pnl_e8 = static_cast<int64_t>(
-                static_cast<__int128>(mp_e8 - o.price) * o.qty / FIXED_SCALE);
+                static_cast<int128_t>(mp_e8 - o.price) * o.qty / FIXED_SCALE);
         } else {
             o.pnl_e8 = static_cast<int64_t>(
-                static_cast<__int128>(o.price - mp_e8) * o.qty / FIXED_SCALE);
+                static_cast<int128_t>(o.price - mp_e8) * o.qty / FIXED_SCALE);
         }
     }
 }

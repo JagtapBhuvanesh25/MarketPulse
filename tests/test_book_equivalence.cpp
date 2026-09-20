@@ -80,7 +80,7 @@ static ReplayStats replay_and_compare(const std::string& fixture_path) {
 
         simdjson::ondemand::value msg_val;
         if (doc["msg"].get(msg_val)) continue;
-        const auto raw = simdjson::to_json_string(msg_val);
+        auto raw = simdjson::to_json_string(msg_val);
         if (raw.error()) continue;
 
         simdjson::padded_string inner(raw.value().data(), raw.value().size());
@@ -109,7 +109,8 @@ static ReplayStats replay_and_compare(const std::string& fixture_path) {
                 if (pair.error()) continue;
                 auto it = pair.begin();
                 std::string_view pxsv, qtysv;
-                if ((*it).get_string().get(pxsv))  continue; ++it;
+                if ((*it).get_string().get(pxsv))  continue;
+                ++it;
                 if ((*it).get_string().get(qtysv)) continue;
                 Price p = 0; Qty q = 0;
                 if (!parse_fixed(pxsv, p)) continue;
