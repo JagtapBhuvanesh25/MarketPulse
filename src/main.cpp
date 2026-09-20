@@ -185,19 +185,25 @@ static void book_thread_fn(BookThreadState& s) {
             const int64_t total_ns = elapsed_ns(upd.t_recv, t_signal);
             s.lat.record_total(total_ns);
 
-            // Live print top-of-book (non-bench mode)
+            // Live print top-of-book (non-bench mode) throttled to 1 Hz
             if (!s.bench_mode) {
-                const BookLevel bid = curr_bids[0];
-                const BookLevel ask = curr_asks[0];
-                if (bid.valid() && ask.valid()) {
-                    std::printf("\r  Bid: %8.2f (%8.6f)  Ask: %8.2f (%8.6f)  Mid: %8.2f  OFI: %+.3f ",
-                        static_cast<double>(bid.price) / FIXED_SCALE,
-                        static_cast<double>(bid.qty)   / FIXED_SCALE,
-                        static_cast<double>(ask.price) / FIXED_SCALE,
-                        static_cast<double>(ask.qty)   / FIXED_SCALE,
-                        signals.microprice,
-                        signals.ofi);
-                    std::fflush(stdout);
+                static auto last_print = std::chrono::steady_clock::now();
+                const auto now = std::chrono::steady_clock::now();
+                if (now - last_print >= std::chrono::seconds(1)) {
+                    last_print = now;
+                    const BookLevel bid = curr_bids[0];
+                    const BookLevel ask = curr_asks[0];
+                    if (bid.valid() && ask.valid()) {
+                        std::printf("[live] Bid: %.2f (%.4f) | Ask: %.2f (%.4f) | Mid: %.2f | OFI: %+.3f | %lu msgs\n",
+                            static_cast<double>(bid.price) / FIXED_SCALE,
+                            static_cast<double>(bid.qty)   / FIXED_SCALE,
+                            static_cast<double>(ask.price) / FIXED_SCALE,
+                            static_cast<double>(ask.qty)   / FIXED_SCALE,
+                            signals.microprice,
+                            signals.ofi,
+                            (unsigned long)msg_count);
+                        std::fflush(stdout);
+                    }
                 }
             }
 
@@ -516,6 +522,10 @@ static void run_live(const Config& cfg,
 //-----------------------------------------------------------------------------
 
 int main(int argc, char* argv[]) {
+    // Disable buffering on stdout and stderr so logs appear immediately in Docker/pipes
+    std::setvbuf(stdout, nullptr, _IONBF, 0);
+    std::setvbuf(stderr, nullptr, _IONBF, 0);
+
     // Register signal handlers
     std::signal(SIGINT,  handle_signal);
     std::signal(SIGTERM, handle_signal);
