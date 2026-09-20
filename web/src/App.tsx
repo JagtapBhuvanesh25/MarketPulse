@@ -7,7 +7,17 @@ import HealthStrip from './components/HealthStrip'
 import type { BookState } from './types'
 import { parseMessage } from './types'
 
-const WS_URL = import.meta.env.VITE_WS_URL ?? 'ws://localhost:9001'
+const getWsUrl = () => {
+  if (typeof window === 'undefined') return 'ws://localhost:9001'
+  const params = new URLSearchParams(window.location.search)
+  const queryWs = params.get('ws')
+  if (queryWs) return queryWs
+  if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  return `${protocol}//${window.location.hostname}:9001`
+}
+
+const WS_URL = getWsUrl()
 
 function App() {
   const [state, setState] = useState<BookState | null>(null)
@@ -29,6 +39,7 @@ function App() {
 
       ws.onopen = () => {
         setConnected(true)
+        setDemoMode(false)
         retryDelay.current = 500
       }
 
