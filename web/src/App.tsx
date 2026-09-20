@@ -184,10 +184,13 @@ function App() {
           <button
             id="feed-toggle-btn"
             className="feed-mode-btn"
-            onClick={() => setDemoMode(!demoMode)}
-            title={connected ? 'Connected to live backend WebSocket' : 'Toggle live simulation feed'}
+            onClick={() => {
+              if (connected) return // Already live, don't drop live feed
+              setDemoMode(!demoMode)
+            }}
+            title={connected ? 'Connected to live Binance backend' : demoMode ? 'Switch to live WebSocket waiting' : 'Start offline simulation'}
           >
-            {connected ? '🟢 Backend Connected' : demoMode ? 'Switch to WS Waiting' : 'Start Simulation'}
+            {connected ? '🟢 Backend Connected' : demoMode ? 'Switch to Live Feed' : 'Start Simulation'}
           </button>
           <span className={`connection-dot ${dotClass}`} />
           <span className="connection-label">{feedStatusText}</span>
