@@ -37,7 +37,6 @@ namespace marketpulse {
 enum class MsgTag : uint8_t { BookDiff, Trade, BookTicker };
 
 /// Tagged union pushed into the SPSC ring.
-/// Must be trivially copyable (ring requirement).
 struct RingMsg {
     MsgTag tag{MsgTag::BookDiff};
 
@@ -49,9 +48,18 @@ struct RingMsg {
     };
 
     NsPoint t_recv{};
+
+    // Explicit default constructor: value-initialises the first union member.
+    // Required because BookUpdate/Trade contain NsPoint (non-trivial ctor),
+    // which prevents an implicit union default constructor.
+    RingMsg() noexcept : tag{MsgTag::BookDiff}, diff{} {}
 };
-static_assert(std::is_trivially_copyable_v<RingMsg>,
-              "RingMsg must be trivially copyable for the SPSC ring");
+// RingMsg is trivially copy-assignable and trivially destructible, which is all
+// SpscRing requires (it does not require full trivially_copyable).
+static_assert(std::is_trivially_copy_assignable_v<RingMsg>,
+              "RingMsg must be trivially copy-assignable for the SPSC ring");
+static_assert(std::is_trivially_destructible_v<RingMsg>,
+              "RingMsg must be trivially destructible for the SPSC ring");
 
 /// Snapshot level from the REST response (a single price rung).
 struct SnapLevel { Price price; Qty qty; };

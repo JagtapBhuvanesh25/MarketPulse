@@ -17,19 +17,17 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-#include <new>      // std::hardware_destructive_interference_size
+#include <new>      // (kept for completeness)
 #include <type_traits>
 #include <utility>
 
 namespace marketpulse {
 
 namespace detail {
-// Fallback if the compiler doesn't define hardware_destructive_interference_size
-#ifdef __cpp_lib_hardware_interference_size
-    inline constexpr std::size_t CACHELINE = std::hardware_destructive_interference_size;
-#else
-    inline constexpr std::size_t CACHELINE = 64;
-#endif
+// GCC 13 warns on std::hardware_destructive_interference_size even when the
+// feature-test macro is defined, because the value can vary with -mtune/-mcpu.
+// 64 bytes is the correct value for every x86-64 and arm64 CPU we target.
+inline constexpr std::size_t CACHELINE = 64;
 } // namespace detail
 
 /// SpscRing<T, N>: Single-producer, single-consumer ring buffer.
@@ -37,8 +35,14 @@ namespace detail {
 template <typename T, std::size_t N>
 class SpscRing {
     static_assert((N & (N - 1)) == 0, "N must be a power of two");
-    static_assert(std::is_trivially_copyable_v<T>,
-                  "T must be trivially copyable for the hot path (no allocation)");
+    // The ring uses copy-assignment (buf_[i] = item) and never calls the destructor
+    // of individual elements directly (the array is destroyed as a whole), so we
+    // only need trivial copy-assignment and trivial destruction, not full trivial
+    // copyability (which would exclude types with user-provided default constructors).
+    static_assert(std::is_trivially_copy_assignable_v<T>,
+                  "T must be trivially copy-assignable for the hot-path push/pop");
+    static_assert(std::is_trivially_destructible_v<T>,
+                  "T must be trivially destructible for the ring buffer");
 
     static constexpr std::size_t MASK = N - 1;
 

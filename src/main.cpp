@@ -35,6 +35,8 @@
 #include <string>
 #include <thread>
 
+#include <simdjson.h>
+
 #ifdef __linux__
 #  include <pthread.h>
 #  include <sched.h>
@@ -366,9 +368,12 @@ static void run_bench(const Config& cfg,
             auto inner_doc = parser.iterate(inner);
             // Push updates directly into ring
             uint64_t U = 0, u = 0, pu = 0;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
             inner_doc["U"].get_uint64().get(U);
             inner_doc["u"].get_uint64().get(u);
             inner_doc["pu"].get_uint64().get(pu);
+#pragma GCC diagnostic pop
 
             BookUpdate proto{};
             proto.first_id = U; proto.last_id = u; proto.prev_id = pu;
@@ -383,7 +388,8 @@ static void run_bench(const Config& cfg,
                     if (pair.error()) continue;
                     auto it = pair.begin();
                     std::string_view pxsv, qtysv;
-                    if ((*it).get_string().get(pxsv))  continue; ++it;
+                    if ((*it).get_string().get(pxsv)) continue;
+                    ++it;
                     if ((*it).get_string().get(qtysv)) continue;
                     BookUpdate upd = proto;
                     upd.side = side;
@@ -411,14 +417,19 @@ static void run_bench(const Config& cfg,
             tr.t_recv = t_recv;
             std::string_view p_sv, q_sv;
             bool is_buyer_maker = false;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
             inner_doc["p"].get_string().get(p_sv);
             inner_doc["q"].get_string().get(q_sv);
             inner_doc["m"].get_bool().get(is_buyer_maker);
             inner_doc["t"].get_uint64().get(tr.trade_id);
+#pragma GCC diagnostic pop
             if (parse_fixed(p_sv, tr.price) && parse_fixed(q_sv, tr.qty)) {
                 tr.side = is_buyer_maker ? Side::Bid : Side::Ask;
                 RingMsg rmsg{.tag = MsgTag::Trade, .trade = tr, .t_recv = t_recv};
-                ring.push(rmsg);
+                if (!ring.push(rmsg)) {
+                    drop_count.fetch_add(1, std::memory_order_relaxed);
+                }
             }
         }
     }
