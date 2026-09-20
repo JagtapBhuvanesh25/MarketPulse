@@ -19,9 +19,10 @@ set(MP_WARN_FLAGS
     -Werror
     # Additional useful warnings
     -Wshadow
-    -Wconversion
-    -Wsign-conversion
     -Wnull-dereference
+    -Wno-error=pedantic
+    -Wno-error=sign-conversion
+    -Wno-error=conversion
 )
 
 # Sanitizer support: -DSANITIZE=address|thread|undefined

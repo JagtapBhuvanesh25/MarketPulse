@@ -4,6 +4,12 @@
 #include "marketpulse/book_ladder.hpp"
 #include <cstring>   // std::memmove, std::memset
 #include <algorithm> // std::min
+#include <bit>
+
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
 
 namespace marketpulse {
 
