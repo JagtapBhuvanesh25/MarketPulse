@@ -1,0 +1,43 @@
+[Unit]
+Description=MarketPulse — Live Order Book and Matching Engine
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=marketpulse
+Group=marketpulse
+
+# Binary and working directory
+ExecStart=/opt/marketpulse/marketpulse --symbol btcusdt
+WorkingDirectory=/opt/marketpulse
+
+# Always restart on failure, with a 5-second cooldown
+Restart=always
+RestartSec=5s
+
+# Give the process time to shut down gracefully (send SIGTERM first, then SIGKILL)
+TimeoutStopSec=30s
+
+# Logging — systemd will forward to journald
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=marketpulse
+
+# Resource limits
+# A leak cannot take down the box
+MemoryMax=8G
+MemorySwapMax=0
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/marketpulse
+PrivateTmp=true
+
+# Network access required for Binance WebSocket feeds
+PrivateNetwork=false
+
+[Install]
+WantedBy=multi-user.target

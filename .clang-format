@@ -1,0 +1,20 @@
+---
+Language:        Cpp
+BasedOnStyle:    Google
+IndentWidth:     4
+ColumnLimit:     100
+AccessModifierOffset: -4
+AlignConsecutiveDeclarations: Consecutive
+AlignConsecutiveAssignments: Consecutive
+AlignTrailingComments: true
+AllowShortFunctionsOnASingleLine: Inline
+BraceWrapping:
+  AfterControlStatement: Never
+  AfterFunction: true
+  AfterNamespace: false
+BreakBeforeBraces: Custom
+IndentPPDirectives: BeforeHash
+PointerAlignment: Left
+SortIncludes: CaseInsensitive
+SpaceBeforeParens: ControlStatements
+Standard: c++20

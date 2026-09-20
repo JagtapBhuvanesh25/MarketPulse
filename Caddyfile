@@ -1,0 +1,31 @@
+# Caddyfile — TLS reverse proxy for MarketPulse
+#
+# Replace <your-host> with your actual domain name.
+# Caddy will automatically provision a TLS certificate via Let's Encrypt.
+#
+# Serves:
+#   wss://<host>/ws  →  localhost:9001  (WebSocket backend)
+#   https://<host>/  →  ./web/dist/    (Static dashboard)
+
+<your-host> {
+    # Reverse proxy WebSocket connections to the MarketPulse broadcast server
+    handle /ws {
+        reverse_proxy localhost:9001 {
+            header_up Host {http.request.host}
+            header_up X-Real-IP {http.request.remote.host}
+        }
+    }
+
+    # Serve the built dashboard static files
+    handle {
+        root * /opt/marketpulse/web/dist
+        file_server
+        # SPA fallback
+        try_files {path} /index.html
+    }
+
+    # Access log
+    log {
+        output file /var/log/caddy/marketpulse.log
+    }
+}

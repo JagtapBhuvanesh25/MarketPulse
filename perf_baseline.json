@@ -1,0 +1,4 @@
+{
+  "total_p99_ns": 0,
+  "note": "PLACEHOLDER — run './build/marketpulse --bench tests/fixtures/btcusdt_clean.jsonl' on the deployment VM and replace this file with actual measurements. See README.md for instructions."
+}
