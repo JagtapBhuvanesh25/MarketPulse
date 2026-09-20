@@ -48,7 +48,6 @@ static ReplayStats replay_and_compare(const std::string& fixture_path) {
 
     BookMap    ref_map;
     BookLadder ladder;
-    uint64_t   prev_recentres = 0;
 
     ReplayStats stats{};
     simdjson::ondemand::parser parser;
@@ -194,8 +193,6 @@ TEST_CASE("BookEquivalence: re-centring is exercised", "[equivalence]") {
     const Price base = 6'500'000'000'000LL; // $65000 in 1e8
 
     // Apply many bid/ask levels that drift the mid price across the window boundary
-    std::vector<std::pair<Price, Qty>> levels;
-    const int64_t tick = 100'000LL; // $0.001 in 1e8 = 100000; use $0.01 = 1'000'000
     const int64_t big_tick = 1'000'000LL;
 
     // Force a recentre by placing levels far from base

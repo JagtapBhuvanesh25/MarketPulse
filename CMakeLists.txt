@@ -26,6 +26,7 @@ set(MP_WARN_FLAGS
     -Wno-unused-result
     -Wno-error=unused-result
     -Wno-error=misleading-indentation
+    -Wno-error=unused-variable
 )
 
 # Sanitizer support: -DSANITIZE=address|thread|undefined
