@@ -85,7 +85,6 @@ int main(int argc, char* argv[]) {
     auto ws_trade  = make_ws("wss://stream.binance.com:9443/ws/" + sym + "@trade",       "trade");
     auto ws_ticker = make_ws("wss://stream.binance.com:9443/ws/" + sym + "@bookTicker",  "bookTicker");
 
-    uint64_t lines = 0;
     while (!g_stop.load(std::memory_order_relaxed)) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
         const auto size = fout.tellp();

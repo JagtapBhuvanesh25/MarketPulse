@@ -14,8 +14,8 @@ static BookUpdate make_update(uint64_t U, uint64_t u, uint64_t pu) {
     upd.last_id  = u;
     upd.prev_id  = pu;
     upd.side     = Side::Bid;
-    upd.price    = 6_500_000_000_000LL; // $65000.00 in 1e8
-    upd.qty      = 100_000_000LL;       // 1.0 in 1e8
+    upd.price    = 6'500'000'000'000LL; // $65000.00 in 1e8
+    upd.qty      = 100'000'000LL;       // 1.0 in 1e8
     return upd;
 }
 

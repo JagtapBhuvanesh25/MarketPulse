@@ -23,6 +23,7 @@ set(MP_WARN_FLAGS
     -Wno-error=pedantic
     -Wno-error=sign-conversion
     -Wno-error=conversion
+    -Wno-unused-result
     -Wno-error=unused-result
     -Wno-error=misleading-indentation
 )

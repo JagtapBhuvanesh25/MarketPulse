@@ -57,10 +57,7 @@ static bool parse_depth_event(std::string_view raw, NsPoint t_recv,
     if (doc["U"].get_uint64().get(first_id)) return false;
     if (doc["u"].get_uint64().get(last_id))  return false;
     // pu is optional in @depth@100ms — intentionally ignore error
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-    doc["pu"].get_uint64().get(prev_id);
-#pragma GCC diagnostic pop
+    if (doc["pu"].get_uint64().get(prev_id)) {}
 
     NsPoint t_parsed = std::chrono::steady_clock::now();
 
@@ -255,12 +252,9 @@ void FeedBinance::on_trade_message(std::string_view raw, NsPoint t_recv) {
     if (doc["p"].get_string().get(px_sv))   return;
     if (doc["q"].get_string().get(qty_sv))  return;
     // These fields are optional/informational; errors are intentionally ignored.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-    doc["m"].get_bool().get(is_buyer_maker);
-    doc["T"].get_uint64().get(trade.event_time_ms);
-    doc["t"].get_uint64().get(trade.trade_id);
-#pragma GCC diagnostic pop
+    if (doc["m"].get_bool().get(is_buyer_maker)) {}
+    if (doc["T"].get_uint64().get(trade.event_time_ms)) {}
+    if (doc["t"].get_uint64().get(trade.trade_id)) {}
 
     if (!parse_fixed(px_sv, trade.price))  return;
     if (!parse_fixed(qty_sv, trade.qty))   return;

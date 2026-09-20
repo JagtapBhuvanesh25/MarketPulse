@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
         if (doc.error()) continue;
 
         uint64_t ts_ns = 0;
-        doc["ts_ns"].get_uint64().get(ts_ns);
+        if (doc["ts_ns"].get_uint64().get(ts_ns)) {}
 
         // Wall-clock pacing
         if (!fast_mode && prev_ts_ns > 0 && ts_ns > prev_ts_ns) {
@@ -135,7 +135,7 @@ int main(int argc, char* argv[]) {
         prev_ts_ns = ts_ns;
 
         std::string_view stream_sv;
-        doc["stream"].get_string().get(stream_sv);
+        if (doc["stream"].get_string().get(stream_sv)) continue;
 
         const NsPoint t_recv = std::chrono::steady_clock::now();
 
@@ -148,9 +148,9 @@ int main(int argc, char* argv[]) {
             simdjson::padded_string inner(raw.value().data(), raw.value().size());
             auto inner_doc = parser.iterate(inner);
             uint64_t U = 0, u = 0, pu = 0;
-            inner_doc["U"].get_uint64().get(U);
-            inner_doc["u"].get_uint64().get(u);
-            inner_doc["pu"].get_uint64().get(pu);
+            if (inner_doc["U"].get_uint64().get(U)) continue;
+            if (inner_doc["u"].get_uint64().get(u)) continue;
+            if (inner_doc["pu"].get_uint64().get(pu)) {}
 
             BookUpdate proto{};
             proto.first_id = U; proto.last_id = u; proto.prev_id = pu;
@@ -188,13 +188,13 @@ int main(int argc, char* argv[]) {
             tr.t_recv = t_recv;
             std::string_view p_sv, q_sv;
             bool is_buyer_maker = false;
-            inner_doc["p"].get_string().get(p_sv);
-            inner_doc["q"].get_string().get(q_sv);
-            inner_doc["m"].get_bool().get(is_buyer_maker);
+            if (inner_doc["p"].get_string().get(p_sv)) continue;
+            if (inner_doc["q"].get_string().get(q_sv)) continue;
+            if (inner_doc["m"].get_bool().get(is_buyer_maker)) {}
             if (parse_fixed(p_sv, tr.price) && parse_fixed(q_sv, tr.qty)) {
                 tr.side = is_buyer_maker ? Side::Bid : Side::Ask;
                 RingMsg rmsg{.tag = MsgTag::Trade, .trade = tr, .t_recv = t_recv};
-                ring.push(rmsg);
+                if (!ring.push(rmsg)) ++drop_count;
             }
         }
     }

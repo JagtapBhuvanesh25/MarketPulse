@@ -87,10 +87,10 @@ static ReplayStats replay_and_compare(const std::string& fixture_path) {
         auto inner_doc = parser.iterate(inner);
 
         uint64_t u = 0;
-        inner_doc["u"].get_uint64().get(u);
+        if (inner_doc["u"].get_uint64().get(u)) continue;
         // Skip if pu doesn't match (gap event — sequencer would resync in real pipeline)
         uint64_t pu = 0;
-        inner_doc["pu"].get_uint64().get(pu);
+        if (inner_doc["pu"].get_uint64().get(pu)) {}
         if (pu != prev_u) {
             // Gap — reset book state (simulate resync)
             ref_map.clear();
@@ -190,7 +190,7 @@ TEST_CASE("BookEquivalence: re-centring is exercised", "[equivalence]") {
     BookMap    ref;
 
     // Start near $65000
-    const Price base = 6_500_000_000_000LL; // $65000 in 1e8
+    const Price base = 6'500'000'000'000LL; // $65000 in 1e8
 
     // Apply many bid/ask levels that drift the mid price across the window boundary
     std::vector<std::pair<Price, Qty>> levels;
