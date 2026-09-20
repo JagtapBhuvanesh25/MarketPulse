@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <cstdio>   // snprintf
+#include <cinttypes>
 #include <algorithm>
 
 namespace marketpulse {

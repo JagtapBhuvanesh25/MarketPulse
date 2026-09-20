@@ -8,6 +8,7 @@
 
 #include <chrono>
 #include <cstdio>
+#include <cinttypes>
 #include <iomanip>
 #include <mutex>
 #include <set>

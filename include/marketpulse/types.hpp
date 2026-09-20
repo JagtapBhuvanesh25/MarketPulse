@@ -8,6 +8,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <cinttypes>
 #include <string_view>
 #include <array>
 
