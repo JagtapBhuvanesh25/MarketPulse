@@ -57,7 +57,7 @@ static bool parse_depth_event(std::string_view raw, NsPoint t_recv,
     if (doc["U"].get_uint64().get(first_id)) return false;
     if (doc["u"].get_uint64().get(last_id))  return false;
     // pu is present in @depth@100ms stream (spot)
-    doc["pu"].get_uint64().get(prev_id); // ignore error — may not be present
+    (void)doc["pu"].get_uint64().get(prev_id); // ignore error — may not be present
 
     NsPoint t_parsed = std::chrono::steady_clock::now();
 
@@ -69,7 +69,8 @@ static bool parse_depth_event(std::string_view raw, NsPoint t_recv,
             std::string_view px_sv, qty_sv;
             if (pair.error()) continue;
             auto it = pair.begin();
-            if ((*it).get_string().get(px_sv))  continue; ++it;
+            if ((*it).get_string().get(px_sv)) continue;
+            ++it;
             if ((*it).get_string().get(qty_sv)) continue;
 
             Price price = 0; Qty qty = 0;
@@ -97,7 +98,8 @@ static bool parse_depth_event(std::string_view raw, NsPoint t_recv,
             std::string_view px_sv, qty_sv;
             if (pair.error()) continue;
             auto it = pair.begin();
-            if ((*it).get_string().get(px_sv))  continue; ++it;
+            if ((*it).get_string().get(px_sv)) continue;
+            ++it;
             if ((*it).get_string().get(qty_sv)) continue;
 
             Price price = 0; Qty qty = 0;
@@ -249,9 +251,9 @@ void FeedBinance::on_trade_message(std::string_view raw, NsPoint t_recv) {
 
     if (doc["p"].get_string().get(px_sv))   return;
     if (doc["q"].get_string().get(qty_sv))  return;
-    doc["m"].get_bool().get(is_buyer_maker);
-    doc["T"].get_uint64().get(trade.event_time_ms);
-    doc["t"].get_uint64().get(trade.trade_id);
+    (void)doc["m"].get_bool().get(is_buyer_maker);
+    (void)doc["T"].get_uint64().get(trade.event_time_ms);
+    (void)doc["t"].get_uint64().get(trade.trade_id);
 
     if (!parse_fixed(px_sv, trade.price))  return;
     if (!parse_fixed(qty_sv, trade.qty))   return;
@@ -274,18 +276,18 @@ void FeedBinance::on_ticker_message(std::string_view raw, NsPoint t_recv) {
     if (doc.error()) return;
 
     std::string_view b_sv, B_sv, a_sv, A_sv;
-    doc["b"].get_string().get(b_sv);
-    doc["B"].get_string().get(B_sv);
-    doc["a"].get_string().get(a_sv);
-    doc["A"].get_string().get(A_sv);
+    if (doc["b"].get_string().get(b_sv)) return;
+    if (doc["B"].get_string().get(B_sv)) return;
+    if (doc["a"].get_string().get(a_sv)) return;
+    if (doc["A"].get_string().get(A_sv)) return;
 
     RingMsg msg{};
     msg.tag = MsgTag::BookTicker;
     msg.t_recv = t_recv;
-    parse_fixed(b_sv, msg.ticker.bid_px);
-    parse_fixed(B_sv, msg.ticker.bid_qty);
-    parse_fixed(a_sv, msg.ticker.ask_px);
-    parse_fixed(A_sv, msg.ticker.ask_qty);
+    if (!parse_fixed(b_sv, msg.ticker.bid_px)) return;
+    if (!parse_fixed(B_sv, msg.ticker.bid_qty)) return;
+    if (!parse_fixed(a_sv, msg.ticker.ask_px)) return;
+    if (!parse_fixed(A_sv, msg.ticker.ask_qty)) return;
     push_or_drop(msg);
 }
 
@@ -335,7 +337,8 @@ void FeedBinance::fetch_snapshot(std::string_view symbol) {
             if (pair.error()) continue;
             auto it = pair.begin();
             std::string_view pxsv, qtysv;
-            if ((*it).get_string().get(pxsv))  continue; ++it;
+            if ((*it).get_string().get(pxsv)) continue;
+            ++it;
             if ((*it).get_string().get(qtysv)) continue;
             Price p = 0; Qty q = 0;
             if (parse_fixed(pxsv, p) && parse_fixed(qtysv, q)) {

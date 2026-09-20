@@ -53,9 +53,13 @@ void BroadcastServer::start() {
     running_.store(true, std::memory_order_release);
 
     // Configure IXWebSocket server
+    // NOTE: IXWebSocket v11 passes a weak_ptr<WebSocket>, not shared_ptr.
     impl_->server.setOnConnectionCallback(
-        [this](std::shared_ptr<ix::WebSocket> ws,
+        [this](std::weak_ptr<ix::WebSocket> ws_weak,
                std::shared_ptr<ix::ConnectionState> /*state*/) {
+            auto ws = ws_weak.lock();
+            if (!ws) return;
+
             ws->setOnMessageCallback([this, ws_ptr = ws.get()]
                 (const ix::WebSocketMessagePtr& msg) {
                 // We don't process incoming messages from the browser.

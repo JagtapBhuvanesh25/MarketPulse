@@ -23,6 +23,8 @@ set(MP_WARN_FLAGS
     -Wno-error=pedantic
     -Wno-error=sign-conversion
     -Wno-error=conversion
+    -Wno-error=unused-result
+    -Wno-error=misleading-indentation
 )
 
 # Sanitizer support: -DSANITIZE=address|thread|undefined
