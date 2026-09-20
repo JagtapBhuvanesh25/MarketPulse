@@ -48,14 +48,11 @@ struct RingMsg {
     };
 
     NsPoint t_recv{};
-
-    // Explicit default constructor: value-initialises the first union member.
-    // Required because BookUpdate/Trade contain NsPoint (non-trivial ctor),
-    // which prevents an implicit union default constructor.
-    RingMsg() noexcept : tag{MsgTag::BookDiff}, diff{} {}
 };
-// RingMsg is trivially copy-assignable and trivially destructible, which is all
-// SpscRing requires (it does not require full trivially_copyable).
+// RingMsg has a non-trivial default constructor (the union's implicit ctor is
+// deleted because BookUpdate/Trade hold NsPoint members), but its copy-assignment
+// and destructor are trivial.  SpscRing uses raw byte storage to avoid needing
+// T to be default-constructible.
 static_assert(std::is_trivially_copy_assignable_v<RingMsg>,
               "RingMsg must be trivially copy-assignable for the SPSC ring");
 static_assert(std::is_trivially_destructible_v<RingMsg>,

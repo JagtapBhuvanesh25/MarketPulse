@@ -360,7 +360,7 @@ static void run_bench(const Config& cfg,
         if (stream_sv.find("depth") != std::string_view::npos) {
             // Re-serialize and parse as depth event
             // (In bench mode we parse inline from the fixture)
-            const auto raw_msg = simdjson::to_json_string(msg_val);
+            auto raw_msg = simdjson::to_json_string(msg_val);
             std::vector<BookUpdate> updates;
             updates.reserve(32);
             // Parse the embedded msg JSON
@@ -410,7 +410,7 @@ static void run_bench(const Config& cfg,
 
         } else if (stream_sv.find("trade") != std::string_view::npos) {
             // Push trade
-            const auto raw_msg = simdjson::to_json_string(msg_val);
+            auto raw_msg = simdjson::to_json_string(msg_val);
             simdjson::padded_string inner(raw_msg.value().data(), raw_msg.value().size());
             auto inner_doc = parser.iterate(inner);
             Trade tr{};
