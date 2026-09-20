@@ -5,12 +5,9 @@ WebSocket feed, maintains the book in memory with lock-free handoff between
 threads, and streams microstructure signals and latency telemetry to a browser
 dashboard.
 
-**Live demo:** https://<your-host> · **Uptime:** <FILL> days continuous
+**Live demo:** [https://market-pulse-ftr3.vercel.app/](https://market-pulse-ftr3.vercel.app/) · **Live WebSocket:** `wss://marketpulse-live.duckdns.org/ws`
 
-![dashboard screenshot](docs/dashboard.png)
-
-> Replace every `<FILL>` below with a number your own `--bench` run produced.
-> Do not ship this README with placeholders in it.
+![MarketPulse Live Dashboard](docs/dashboard.png)
 
 ---
 
