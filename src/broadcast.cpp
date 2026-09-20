@@ -27,7 +27,7 @@ struct BroadcastServer::Impl {
     std::mutex          clients_mu;
     std::set<std::shared_ptr<ix::WebSocket>> clients;
 
-    explicit Impl(uint16_t port) : server(port) {}
+    explicit Impl(uint16_t port) : server(port, "0.0.0.0") {}
 };
 
 //-----------------------------------------------------------------------------
