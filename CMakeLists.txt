@@ -49,6 +49,10 @@ endif()
 # ============================================================
 include(FetchContent)
 
+find_package(OpenSSL REQUIRED)
+set(USE_TLS ON CACHE BOOL "Enable TLS in IXWebSocket" FORCE)
+set(USE_OPEN_SSL ON CACHE BOOL "Use OpenSSL for IXWebSocket TLS" FORCE)
+
 # 1. IXWebSocket — WebSocket client/server + HTTP
 FetchContent_Declare(
     ixwebsocket
@@ -109,6 +113,8 @@ target_link_libraries(marketpulse_lib PUBLIC
     simdjson
     hdr_histogram_static
     pthread
+    OpenSSL::SSL
+    OpenSSL::Crypto
 )
 
 target_compile_options(marketpulse_lib PRIVATE ${MP_WARN_FLAGS})

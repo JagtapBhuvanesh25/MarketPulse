@@ -307,7 +307,7 @@ void FeedBinance::fetch_snapshot(std::string_view symbol) {
 
     const auto response = http.get(url, args);
     if (response->statusCode != 200) {
-        std::fprintf(stderr, "[feed] Snapshot HTTP error %d\n", response->statusCode);
+        std::fprintf(stderr, "[feed] Snapshot HTTP error %d: %s\n", response->statusCode, response->errorMsg.c_str());
         trigger_resync();
         return;
     }
