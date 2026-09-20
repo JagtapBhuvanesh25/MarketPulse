@@ -114,14 +114,26 @@ SeqResult Sequencer::process_diff(const BookUpdate& update) noexcept {
         }
 
         case SeqState::Synced: {
-            // Continuity check: pu must equal last_u_.
-            // (Binance spot @depth@100ms includes the 'pu' field.)
-            if (update.prev_id != last_u_) {
+            // Ignore stale updates already processed
+            if (update.last_id <= last_u_) {
+                return SeqResult::Drop;
+            }
+
+            // Continuity check:
+            // If the stream provides 'pu' (Futures or synthetic fixtures), verify update.prev_id == last_u_.
+            // If 'pu' is absent/0 (Binance Spot @depth@100ms), verify update.first_id <= last_u_ + 1.
+            bool gap = false;
+            if (update.prev_id != 0) {
+                gap = (update.prev_id != last_u_);
+            } else {
+                gap = (update.first_id > last_u_ + 1);
+            }
+
+            if (gap) {
                 char reason[128];
                 std::snprintf(reason, sizeof(reason),
-                              "Continuity broken: pu=%" PRIu64 " expected %" PRIu64
-                              " (last u=%" PRIu64 ")",
-                              update.prev_id, last_u_, last_u_);
+                              "Continuity broken: U=%" PRIu64 " u=%" PRIu64 " pu=%" PRIu64 " (last u=%" PRIu64 ")",
+                              update.first_id, update.last_id, update.prev_id, last_u_);
                 ++resync_count_;
                 transition(SeqState::Resyncing, reason);
                 return SeqResult::Resync;
